@@ -842,8 +842,8 @@ static int switch_function(FILE *c, dbc_t *dbc, char *function, bool unpack,
 	assert(function);
 	assert(god);
 	assert(copts);
-	fprintf(c, "int %s_message(can_obj_%s_t *o, const unsigned long id, %s %sdata%s)",
-			function, god, datatype, unpack ? "" : "*",
+	fprintf(c, "int %s_message_%s(can_obj_%s_t *o, const unsigned long id, %s %sdata%s)",
+			function, god, god, datatype, unpack ? "" : "*",
 			dlc ? ", uint8_t dlc, dbcc_time_stamp_t time_stamp" : "");
 	if (prototype)
 		return fprintf(c, ";\n");
@@ -876,7 +876,7 @@ static int switch_function_print(FILE *c, dbc_t *dbc, bool prototype, const char
 	assert(dbc);
 	assert(god);
 	assert(copts);
-	fprintf(c, "int print_message(const can_obj_%s_t *o, const unsigned long id, FILE *output)", god);
+	fprintf(c, "int print_message_%s(const can_obj_%s_t *o, const unsigned long id, FILE *output)", god, god);
 	if (prototype)
 		return fprintf(c, ";\n");
 	fprintf(c, " {\n");
@@ -897,12 +897,12 @@ static int switch_function_print(FILE *c, dbc_t *dbc, bool prototype, const char
 	return fprintf(c, "\treturn -1; \n}\n\n");
 }
 
-static int switch_message_dlc(FILE *c, dbc_t *dbc, bool prototype, dbc2c_options_t *copts)
+static int switch_message_dlc(FILE *c, dbc_t *dbc, bool prototype, dbc2c_options_t *copts, const char *god)
 {
 	assert(c);
 	assert(dbc);
 	assert(copts);
-	fprintf(c, "int message_dlc(const unsigned long id)");
+	fprintf(c, "int message_dlc_%s(const unsigned long id)", god);
 	if (prototype)
 		return fprintf(c, ";\n");
 	fprintf(c, " {\n");
@@ -1176,7 +1176,7 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 
 	if (copts->generate_pack) {
 		switch_function(h, dbc, "pack", false, true, "uint64_t", false, god, copts);
-		switch_message_dlc(h, dbc, true, copts);
+		switch_message_dlc(h, dbc, true, copts, god);
 	}
 
 	if (copts->generate_print)
@@ -1235,7 +1235,7 @@ int dbc2c(dbc_t *dbc, FILE *c, FILE *h, const char *name, dbc2c_options_t *copts
 
 	if (copts->generate_pack) {
 		switch_function(c, dbc, "pack", false, false, "uint64_t", false, god, copts);
-		switch_message_dlc(c, dbc, false, copts);
+		switch_message_dlc(c, dbc, false, copts, god);
 	}
 
 	if (copts->generate_print)
