@@ -842,12 +842,13 @@ static int switch_function(FILE *c, dbc_t *dbc, char *function, bool unpack,
 	assert(function);
 	assert(god);
 	assert(copts);
-	fprintf(c, "int %s_message_%s(can_obj_%s_t *o, const unsigned long id, %s %sdata%s)",
+	fprintf(c, "int %s_message_%s(can_obj_%s_t *o, const unsigned long raw_id, %s %sdata%s)",
 			function, god, god, datatype, unpack ? "" : "*",
 			dlc ? ", uint8_t dlc, dbcc_time_stamp_t time_stamp" : "");
 	if (prototype)
 		return fprintf(c, ";\n");
 	fprintf(c, " {\n");
+	fprintf(c, "\tunsigned long id = raw_id & 0x1FFFFFFF;\n");	
 	if (copts->generate_asserts) {
 		fprintf(c, "\tassert(o);\n");
 		fprintf(c, "\tassert(id < (1ul << 29)); /* 29-bit CAN ID is largest possible */\n");
